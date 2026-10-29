@@ -4,12 +4,12 @@ Windows Explorer context-menu helpers that create timestamped backups of any fil
 
 Right-click a file → **Backup File** leaves a copy in a `BACKUPS` folder next to it. Right-click a `.BAK` file → **Restore File** strips the `.BAK` extension and puts the original name back.
 
-The project is a single `.reg` file plus two batch scripts. There is nothing to build and no dependencies beyond Windows.
+The project is a pair of `.reg` files — `Install.reg` and `Uninstall.reg` — plus two batch scripts. There is nothing to build and no dependencies beyond Windows.
 
 ## Requirements
 
 - Windows (tested on Windows 10/11)
-- `regedit` to import the installer
+- `regedit` to import `Install.reg` or `Uninstall.reg`
 - Administrator rights to write the `HKEY_CLASSES_ROOT` keys
 
 ## Installation
@@ -17,7 +17,7 @@ The project is a single `.reg` file plus two batch scripts. There is nothing to 
 1. Copy the `BackupFiles` folder to `C:\src`, so the scripts live at:
    - `C:\src\BackupFiles\Backup.bat`
    - `C:\src\BackupFiles\Restore.bat`
-2. Double-click `Backup Regedit.reg` and confirm the UAC / registry prompt.
+2. Double-click `Install.reg` and confirm the UAC / registry prompt.
 
 > The installer hard-codes `C:\src\BackupFiles`. If you keep the scripts somewhere else, edit the two `command` values in the `.reg` file before importing it.
 
@@ -49,14 +49,15 @@ Because the script uses `rename`, a file that already has the original name will
 
 ## Uninstall
 
-Remove the context-menu entries (no files are deleted):
+1. Double-click `Uninstall.reg` and confirm the UAC / registry prompt. It removes both context-menu entries and nothing else — no files are deleted.
+2. Delete `C:\src\BackupFiles` and any `BACKUPS` folders you no longer need.
+
+If you prefer the command line, the same result:
 
 ```bat
 reg delete "HKEY_CLASSES_ROOT\*\shell\Backup File" /f
 reg delete "HKEY_CLASSES_ROOT\*\shell\Restore File" /f
 ```
-
-Then delete `C:\src\BackupFiles` and any `BACKUPS` folders you no longer need.
 
 ## What the installer registers
 
@@ -69,11 +70,14 @@ Then delete `C:\src\BackupFiles` and any `BACKUPS` folders you no longer need.
 | `...\Restore File\AppliesTo` | `System.FileName:"*.bak"` — shows the entry only for `.BAK` files. |
 | `HKEY_CLASSES_ROOT\*\shell\Restore File\command` | Runs `C:\src\BackupFiles\Restore.bat "%1"`. |
 
+`Uninstall.reg` removes both `Backup File` and `Restore File` with two `[-...]` entries, which delete each key together with its `AppliesTo` and `command` subkeys. It does not touch `BackupFiles` or any `BACKUPS` folder.
+
 ## Project layout
 
 | Path | Description |
 | --- | --- |
-| `Backup Regedit.reg` | Registry installer for the two context-menu entries (UTF-16LE). |
+| `Install.reg` | Installs the two context-menu entries (UTF-16LE). |
+| `Uninstall.reg` | Removes both context-menu entries, including their `AppliesTo` and `command` subkeys (UTF-16LE). |
 | `BackupFiles\Backup.bat` | Copies the selected file into a timestamped `BACKUPS` folder. |
 | `BackupFiles\Restore.bat` | Renames a `.BAK` file back to its original name. |
 
