@@ -1,0 +1,15 @@
+# Backups produced by Backup.bat
+BACKUPS/
+*.BAK
+
+# Windows and editor noise
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+desktop.ini
+.DS_Store
+
+# IDE / editor folders
+.vscode/
+.idea/
+*.swp

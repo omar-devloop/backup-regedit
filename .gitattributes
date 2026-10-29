@@ -1,0 +1,9 @@
+# Normalize text files to LF in the repository
+* text=auto eol=lf
+
+# Batch files must keep CRLF line endings to run reliably in cmd.exe
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Windows registry files are UTF-16LE; keep their bytes untouched
+*.reg -text
